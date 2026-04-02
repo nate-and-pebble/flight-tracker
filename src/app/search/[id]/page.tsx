@@ -28,7 +28,7 @@ type Route = {
   stops: number;
   price: number | null;
   notes: string | null;
-  createdAt: string;
+  createdAt: Date;
   legs: Leg[];
 };
 
