@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Flight Tracker
 
-## Getting Started
+Track flight availability and pricing across routes. Dark-mode UI with sortable tables, expandable route details, and a recommended route badge.
 
-First, run the development server:
+Live at: https://flights.itsmenate.com
+
+## Stack
+
+- **Next.js** (App Router) + TypeScript
+- **Tailwind CSS** for styling
+- **Drizzle ORM** + **Turso** (libsql/SQLite)
+- **Vercel** for hosting
+
+## Environment Variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `FLIGHTS_DB_URL` | Yes | Turso database URL (e.g. `libsql://your-db.turso.io`) or local file (`file:local.db`) |
+| `FLIGHTS_DB_AUTH_TOKEN` | No | Turso auth token (not needed for local file DBs) |
+
+## Setup
 
 ```bash
+npm install
+# Set FLIGHTS_DB_URL and optionally FLIGHTS_DB_AUTH_TOKEN in .env
+npx tsx src/db/migrate.ts   # run migrations
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## CLI
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Manage data via the CLI at `cli/add.ts`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Create a search
+npx tsx cli/add.ts search --name "Summer Japan" --origin DEN --destination NRT
 
-## Learn More
+# Add a route to search ID 1
+npx tsx cli/add.ts route --search-id 1 --airline "United" --origin DEN --destination NRT --stops 1 --price 1200
 
-To learn more about Next.js, take a look at the following resources:
+# Add legs to route ID 1
+npx tsx cli/add.ts leg --route-id 1 --origin DEN --destination SFO --order 1 --flight "UA123" --depart "08:00" --arrive "10:30" --availability green
+npx tsx cli/add.ts leg --route-id 1 --origin SFO --destination NRT --order 2 --flight "UA456" --depart "12:00" --arrive "15:00+1" --availability yellow
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Import from JSON
+npx tsx cli/add.ts import --file data.json
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# List all searches
+npx tsx cli/add.ts list
 
-## Deploy on Vercel
+# List routes for a search
+npx tsx cli/add.ts list routes --search-id 1
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Web UI
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `/` — List of all searches
+- `/search/[id]` — Sortable table of routes with expandable leg details
+  - Sort by price, stops, or availability score
+  - Recommended badge on the best-scoring route
+
+## Scoring
+
+The recommended route is computed as:
+```
+score = price + (stops * 50) + (red_legs * 200) + (yellow_legs * 50)
+```
+Lowest score wins.
