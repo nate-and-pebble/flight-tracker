@@ -1,18 +1,25 @@
-import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
+import {
+  pgTable,
+  serial,
+  text,
+  integer,
+  doublePrecision,
+  timestamp,
+} from "drizzle-orm/pg-core";
 
-export const searches = sqliteTable("searches", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const searches = pgTable("searches", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
   origin: text("origin").notNull(),
   destination: text("destination").notNull(),
   departDate: text("depart_date"),
   returnDate: text("return_date"),
   notes: text("notes"),
-  createdAt: text("created_at").notNull().default("(datetime('now'))"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const routes = sqliteTable("routes", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const routes = pgTable("routes", {
+  id: serial("id").primaryKey(),
   searchId: integer("search_id")
     .notNull()
     .references(() => searches.id, { onDelete: "cascade" }),
@@ -20,13 +27,13 @@ export const routes = sqliteTable("routes", {
   origin: text("origin").notNull(),
   destination: text("destination").notNull(),
   stops: integer("stops").notNull().default(0),
-  price: real("price"),
+  price: doublePrecision("price"),
   notes: text("notes"),
-  createdAt: text("created_at").notNull().default("(datetime('now'))"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const legs = sqliteTable("legs", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const legs = pgTable("legs", {
+  id: serial("id").primaryKey(),
   routeId: integer("route_id")
     .notNull()
     .references(() => routes.id, { onDelete: "cascade" }),

@@ -8,21 +8,20 @@ Live at: https://flights.itsmenate.com
 
 - **Next.js** (App Router) + TypeScript
 - **Tailwind CSS** for styling
-- **Drizzle ORM** + **Turso** (libsql/SQLite)
+- **Drizzle ORM** + **Supabase** (PostgreSQL)
 - **Vercel** for hosting
 
 ## Environment Variables
 
 | Variable | Required | Description |
 |---|---|---|
-| `FLIGHTS_DB_URL` | Yes | Turso database URL (e.g. `libsql://your-db.turso.io`) or local file (`file:local.db`) |
-| `FLIGHTS_DB_AUTH_TOKEN` | No | Turso auth token (not needed for local file DBs) |
+| `FLIGHTS_DB_URL` | Yes | PostgreSQL connection string (e.g. `postgresql://user:pass@host:port/db`) |
 
 ## Setup
 
 ```bash
 npm install
-# Set FLIGHTS_DB_URL and optionally FLIGHTS_DB_AUTH_TOKEN in .env
+# Set FLIGHTS_DB_URL in .env
 npx tsx src/db/migrate.ts   # run migrations
 npm run dev
 ```

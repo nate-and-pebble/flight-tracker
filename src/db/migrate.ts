@@ -1,18 +1,15 @@
 import "dotenv/config";
-import { createClient } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
-import { migrate } from "drizzle-orm/libsql/migrator";
+import { drizzle } from "drizzle-orm/postgres-js";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
+import postgres from "postgres";
 
 async function main() {
-  const client = createClient({
-    url: process.env.FLIGHTS_DB_URL!,
-    authToken: process.env.FLIGHTS_DB_AUTH_TOKEN,
-  });
+  const client = postgres(process.env.FLIGHTS_DB_URL!, { max: 1 });
   const db = drizzle(client);
   console.log("Running migrations...");
   await migrate(db, { migrationsFolder: "./drizzle" });
   console.log("Migrations complete.");
-  client.close();
+  await client.end();
 }
 
 main().catch((err) => {
